@@ -2,20 +2,37 @@
 
 import { useEffect, useState } from "react";
 
-export default function TodoBackend() {
-  const [products, setProducts] = useState([]);
+export default function Home() {
+  const [newTask, setNewTask] = useState("")
+  const [tasks, setTasks] = useState<{ id: string; name: string}[]>([])
+
+  async function createNewTask() {
+    await fetch("http://localhost:4000/tasks", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ name: newTask})
+    })
+    loadTasks()
+    setNewTask("")
+  }
+  function loadTasks() {
+    fetch("http://localhost:4000/tasks").then((res) => res.json).then((data) => {setNewTask})
+  }
   useEffect(() => {
-    fetch("http://localhost:3000/products")
-      .then((res) => res.json())
-      .then((data) => {
-        setProducts(data);
-      });
-  }, []);
+    loadTasks()
+  },[])
+
   return (
-    <div>
-      {products.map((product) => (
-        <div key={product.id}>{product.name}</div>
+    <div className="m-8">
+      <div className="flex">
+        <input className="input mr-4" value={newTask} onChange={(e) => setNewTask(e.target.value)}/>
+        <button className="btn btn-accent" onClick={createNewTask}>Add</button>
+      </div>
+      {tasks.map((task) => (
+        <div className="card p-4 border border-base-300 mt-4">
+          {task.name}
+        </div>
       ))}
     </div>
-  );
+  )
 }
