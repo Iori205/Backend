@@ -3,36 +3,51 @@
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const [newTask, setNewTask] = useState("")
-  const [tasks, setTasks] = useState<{ id: string; name: string}[]>([])
+  const [newTask, setNewTask] = useState("");
+  const [tasks, setTasks] = useState<{ id: string; name: string }[]>([]);
 
   async function createNewTask() {
     await fetch("http://localhost:4000/tasks", {
       method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ name: newTask})
-    })
-    loadTasks()
-    setNewTask("")
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: newTask }),
+    });
+    loadTasks();
+    setNewTask("");
   }
   function loadTasks() {
-    fetch("http://localhost:4000/tasks").then((res) => res.json).then((data) => {setNewTask})
+    fetch("http://localhost:4000/tasks")
+      .then((res) => res.json())
+      .then((data) => {
+        setTasks(data);
+      });
   }
   useEffect(() => {
-    loadTasks()
-  },[])
+    loadTasks();
+  }, []);
 
   return (
-    <div className="m-8">
-      <div className="flex">
-        <input className="input mr-4" value={newTask} onChange={(e) => setNewTask(e.target.value)}/>
-        <button className="btn btn-accent" onClick={createNewTask}>Add</button>
-      </div>
-      {tasks.map((task) => (
-        <div className="card p-4 border border-base-300 mt-4">
-          {task.name}
+    <div className="w-full h-screen">
+      <div className="p-8">
+        <div className="flex">
+          <input
+            className="input mr-4"
+            value={newTask}
+            onChange={(e) => setNewTask(e.target.value)}
+          />
+          <button className="btn btn-neutral" onClick={createNewTask}>
+            Add
+          </button>
         </div>
-      ))}
+        <div>
+          {tasks.map((task) => (
+            <div className="card p-4 border border-base-300 mt-4">
+              {task.name}
+              <button className="btn btn-accent">Delete</button>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
-  )
+  );
 }
